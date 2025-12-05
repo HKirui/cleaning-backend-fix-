@@ -13,6 +13,9 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
+// TRUST RAILWAY PROXY (fixes rate-limit error)
+app.set('trust proxy', 1);
+
 // ---------- SECURITY MIDDLEWARE ----------
 app.use(helmet());
 app.use(cors({
