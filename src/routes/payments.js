@@ -1,33 +1,54 @@
-const express = require('express');
-const auth = require('../middleware/auth');
-const pool = require('../../db/pool');
-const { stkPush } = require('../utils/mpesa');
-
+const express = require("express");
 const router = express.Router();
+const mpesa = require("../utils/mpesa");
+const pool = require("../../db/pool");
+const auth = require("../middleware/auth");
 
-// ------------------ SUBSCRIPTION MPESA PAYMENT ------------------
-router.post('/subscribe', auth(), async (req, res) => {
-  const { phone } = req.body;
+// SEND STK PUSH
+router.post("/subscribe", auth, async (req, res) => {
+  try {
+    const { phone } = req.body;
+    const userId = req.user.userId;
 
-  const amount = process.env.SUBSCRIPTION_AMOUNT;
+    const response = await mpesa.stkPush({
+      phone,
+      amount: 100,
+      orderId: `SUB-${userId}-${Date.now()}`,
+      callbackUrl: process.env.MPESA_CALLBACK_URL
+    });
 
-  const response = await stkPush(phone, amount);
+    res.json({ success: true, message: "STK Push sent", data: response });
 
-  res.json({
-    success: true,
-    message: 'STK Push sent. Complete payment on your phone.',
-    mpesa: response
-  });
+  } catch (err) {
+    console.error("SUBSCRIBE ERROR:", err);
+    res.status(500).json({ error: "Payment error" });
+  }
 });
 
-// ------------------ MPESA CALLBACK ------------------
-router.post('/mpesa/callback', async (req, res) => {
-  console.log("M-PESA CALLBACK RECEIVED ⬇⬇⬇");
-  console.log(JSON.stringify(req.body, null, 2));
+// CALLBACK FROM SAFARICOM
+router.post("/callback", async (req, res) => {
+  try {
+    const body = req.body;
 
-  // You can save payment logs here if needed.
+    const callback = body.Body.stkCallback;
 
-  res.json({ success: true });
+    if (callback.ResultCode === 0) {
+      const phone = callback.CallbackMetadata.Item[4].Value;
+      
+      await pool.query(
+        "UPDATE users SET subscribed = true WHERE phone = $1",
+        [phone]
+      );
+
+      console.log("Subscription updated for:", phone);
+    }
+
+    res.json({ message: "Callback received" });
+
+  } catch (err) {
+    console.error("CALLBACK ERROR:", err);
+    res.status(500).json({ error: "Callback error" });
+  }
 });
 
 module.exports = router;

@@ -23,15 +23,28 @@ router.post('/register', async (req, res) => {
 
     const insert = await pool.query(
       `INSERT INTO users (first_name, last_name, email, phone, user_type, password)
-       VALUES ($1,$2,$3,$4,$5,$6) RETURNING user_id, user_type`,
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
       [first_name, last_name, email, phone, user_type, hashed]
+    );
+
+    const newUser = insert.rows[0];
+
+    const token = jwt.sign(
+      { userId: newUser.user_id, userType: newUser.user_type },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
     );
 
     res.json({
       success: true,
-      message: 'Registration successful. You must subscribe to continue.',
-      user_id: insert.rows[0].user_id,
-      user_type: insert.rows[0].user_type
+      message: "Registration successful!",
+      token,
+      user: {
+        user_id: newUser.user_id,
+        first_name: newUser.first_name,
+        last_name: newUser.last_name,
+        user_type: newUser.user_type
+      }
     });
 
   } catch (err) {
@@ -39,6 +52,7 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ error: 'Registration error' });
   }
 });
+
 
 
 // ------------------ LOGIN ------------------
