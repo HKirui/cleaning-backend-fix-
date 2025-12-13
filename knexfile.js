@@ -1,27 +1,22 @@
-require('dotenv').config();
-
 module.exports = {
   development: {
     client: 'pg',
-    connection: process.env.DATABASE_URL || {
-      host: process.env.DB_HOST || '127.0.0.1',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || '',
+    connection: {
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'platform_user',
+      password: process.env.DB_PASSWORD || 'joymella',
       database: process.env.DB_NAME || 'cleaning_platform',
-      port: process.env.DB_PORT || 5432
+      port: process.env.DB_PORT || 5432,
     },
     migrations: {
-      directory: './db/migrations'
+      directory: './db/migrations',
     },
-    pool: { min: 2, max: 10 }
   },
   production: {
     client: 'pg',
-    connection: process.env.DATABASE_URL,
+    connection: process.env.DATABASE_URL, // Railway uses this
     migrations: {
-      directory: './db/migrations'
+      directory: './db/migrations',
     },
-    pool: { min: 2, max: 10 },
-    acquireConnectionTimeout: 60000
-  }
+  },
 };
