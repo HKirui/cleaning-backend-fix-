@@ -28,9 +28,9 @@ router.post('/register', async (req, res) => {
         email,
         phone,
         password: hashedPassword,
-        user_type
+        user_type 
       })
-      .returning(['user_id', 'first_name', 'last_name', 'user_type']);
+      .returning(['id', 'first_name', 'last_name', 'user_type']);
 
     const token = jwt.sign(
       { userId: user.user_id, userType: user.user_type },
@@ -46,7 +46,7 @@ router.post('/register', async (req, res) => {
 
   } catch (err) {
     console.error('REGISTER ERROR:', err);
-    res.status(500).json({ error: 'Registration failed' });
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -85,7 +85,7 @@ router.post('/login', async (req, res) => {
 
   } catch (err) {
     console.error('LOGIN ERROR:', err);
-    res.status(500).json({ error: 'Login failed' });
+    res.status(500).json({ error: err.message });
   }
 });
 
