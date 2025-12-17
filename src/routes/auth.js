@@ -75,7 +75,7 @@ router.post('/login', async (req, res) => {
       success: true,
       token,
       user: {
-        user_id: user.user_id,
+        id: user.id,
         first_name: user.first_name,
         last_name: user.last_name,
         user_type: user.user_type,
