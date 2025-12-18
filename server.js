@@ -1,3 +1,12 @@
+process.on('unhandledRejection', (err) => {
+  console.error('UNHANDLED REJECTION:', err);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION:', err);
+});
+
+
 require('dotenv').config();   // FIRST — always first
 
 const app = require('./src/app');
