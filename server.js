@@ -1,8 +1,10 @@
-require('dotenv').config();
+require('dotenv').config();   // FIRST — always first
+
 const app = require('./src/app');
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8080;
+const HOST = '0.0.0.0';
 
-app.listen(PORT, () => {
+app.listen(PORT, HOST, () => {
   console.log(`✅ Server running on port ${PORT}`);
 });
