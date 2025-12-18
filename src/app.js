@@ -42,10 +42,6 @@ app.use('/api/admin', adminRoutes);
 // health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
-  app.get('/', (req, res) => {
-  res.send('OK');
-});
-
 });
 
 // ---------- 404 HANDLER ----------
